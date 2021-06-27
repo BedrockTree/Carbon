@@ -8,9 +8,12 @@ import cn.org.bedrocktree.carbon.utils.StreamUtils;
 import com.alibaba.fastjson.JSONObject;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MinecraftDownloader {
 
@@ -56,6 +59,9 @@ public class MinecraftDownloader {
         if (!(new File(loggingPath)).exists()){
             new File(loggingPath).mkdirs();
         }
+        if (!(new File(libPath)).exists()){
+            new File(libPath).mkdirs();
+        }
     }
 
     private void downloadManifest() throws IOException {
@@ -99,21 +105,22 @@ public class MinecraftDownloader {
         DownloadUtils.download(minecraftMirror.getMinecraftLoggerConfigDownloadUrl(versionJson),loggingPath,JSONObject.parseObject(StreamUtils.readJsonFile(versionJson)).getJSONObject("logging").getJSONObject("client").getJSONObject("file").getString("id"));
     }
 
-    private void downloadLibraries() throws IOException, DownloadFailedException, OsNotSupportsException {
-        List<String> libraries = DownloadUtils.getLibraries(versionJson);
+    private void downloadLibraries() throws IOException {
+        List<String> libraries = minecraftMirror.getMinecraftLibrariesDownloadUrl(versionJson);
         for (String url : libraries){
-            new File(libPath+url).getParentFile().mkdirs();
-            DownloadUtils.download(minecraftMirror.getMinecraftLibrariesDownloadUrl(url),(libPath+url).replaceAll("/",File.separator));
+            String path = url.replaceAll(minecraftMirror.getLibUrl(),"").replaceAll("/",File.separator);
+            new File(libPath+path).getParentFile().mkdirs();
+            DownloadUtils.download(url,(libPath+path).replaceAll("/",File.separator));
         }
     }
 
     private void downloadNativeLibraries() throws IOException, DownloadFailedException, OsNotSupportsException {
-        List<String> natives = DownloadUtils.getNativeLibraries(versionJson);
+        List<String> natives = minecraftMirror.getMinecraftNativeLibrariesDownloadUrl(versionJson);
         for (String url : natives){
-            if (minecraftMirror.getMinecraftNativeLibrariesDownloadUrl(versionJson,url) != null){
-            DownloadUtils.download(minecraftMirror.getMinecraftNativeLibrariesDownloadUrl(versionJson,url), nativePath+File.separator+url.substring(url.lastIndexOf("/")+1));
-            DownloadUtils.unzipNativeLibraries(nativePath+File.separator+url.substring(url.lastIndexOf("/")+1),nativePath);
-            new File(nativePath+File.separator+url.substring(url.lastIndexOf("/")+1),nativePath).delete();
+            if (minecraftMirror.getMinecraftNativeLibrariesDownloadUrl(versionJson) != null){
+                DownloadUtils.download(url,nativePath+File.separator+url.substring(url.lastIndexOf("/")+1));
+                DownloadUtils.unzipNativeLibraries(nativePath+File.separator+url.substring(url.lastIndexOf("/")+1),nativePath);
+                new File(nativePath+File.separator+url.substring(url.lastIndexOf("/")+1),nativePath).delete();
             }
         }
     }

@@ -1,12 +1,8 @@
 package cn.org.bedrocktree.carbon;
 
-import cn.org.bedrocktree.carbon.factory.UserProfileFactory;
 import cn.org.bedrocktree.carbon.init.InitFiles;
 import cn.org.bedrocktree.carbon.ui.MainWindow;
-import cn.org.bedrocktree.carbon.utils.MicrosoftUtils;
 import cn.org.bedrocktree.carbon.utils.SystemUtils;
-
-import java.io.File;
 
 public class Carbon {
 
@@ -18,7 +14,8 @@ public class Carbon {
 
     public static final String ROOT_LOCATION = "/data/Projects/Java/Another/Carbon/Test/";
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args){
+        System.out.println("Carbon  Copyright (C) 2021  BedrockTree");
         try {
             InitFiles.init();
             MainWindow.genUIManager();
@@ -26,6 +23,5 @@ public class Carbon {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 }

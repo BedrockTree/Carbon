@@ -4,6 +4,7 @@ import cn.org.bedrocktree.carbon.download.MinecraftMirror;
 import cn.org.bedrocktree.carbon.exceptions.DownloadFailedException;
 import cn.org.bedrocktree.carbon.exceptions.NoSuchMinecraftVersionException;
 import cn.org.bedrocktree.carbon.exceptions.OsNotSupportsException;
+import cn.org.bedrocktree.carbon.utils.JSONUtils;
 import cn.org.bedrocktree.carbon.utils.StreamUtils;
 import cn.org.bedrocktree.carbon.utils.SystemUtils;
 import com.alibaba.fastjson.JSON;
@@ -14,8 +15,16 @@ import com.alibaba.fastjson.JSONReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
 
 public class OfficialMinecraftMirror extends MinecraftMirror {
+
+    @Override
+    public String getLibUrl() {
+        return "https://libraries.minecraft.net/";
+    }
 
     @Override
     public String getMinecraftManifestJsonDownloadUrl() {
@@ -80,46 +89,48 @@ public class OfficialMinecraftMirror extends MinecraftMirror {
     }
 
     @Override
-    public String getMinecraftLibrariesDownloadUrl(String childPath) {
-        return "https://libraries.minecraft.net/"+childPath;
+    public List<String> getMinecraftLibrariesDownloadUrl(File versionJson) throws FileNotFoundException {
+        JSONObject json = JSONObject.parseObject(StreamUtils.readJsonFile(versionJson));
+        JSONArray libraries = json.getJSONArray("libraries");
+        List<String> librariesList = new ArrayList<String>();
+        for (int i = 0;i < libraries.size();i++){
+            JSONObject downloads = libraries.getJSONObject(i).getJSONObject("downloads");
+            if (libraries.getJSONObject(i).containsKey("rules")){
+                if (JSONUtils.rulesJudgmenter(libraries.getJSONObject(i).getJSONArray("rules"))){
+                    if (downloads.containsKey("artifact")) {
+                        librariesList.add(downloads.getJSONObject("artifact").getString("url"));
+                    }
+                }
+            }else {
+                if (downloads.containsKey("artifact")) {
+                    librariesList.add(downloads.getJSONObject("artifact").getString("url"));
+                }
+            }
+        }
+        return librariesList;
     }
 
     @Override
-    public String getMinecraftNativeLibrariesDownloadUrl(File versionJson, String childPath) throws DownloadFailedException, OsNotSupportsException, FileNotFoundException {
-        String os = SystemUtils.getSystemName();
-        if (versionJson.exists()){
-            JSONArray jsonArray = JSONObject.parseObject(StreamUtils.readJsonFile(versionJson)).getJSONArray("libraries");
-            JSONObject jsonObject = null;
-            for (int i = 0;i < jsonArray.size();i++){
-                if (jsonArray.getJSONObject(i).getJSONObject("downloads").containsKey("classifiers")){
-                    if (jsonArray.getJSONObject(i).getJSONObject("downloads").getJSONObject("artifact") != null){
-                        if (jsonArray.getJSONObject(i).getJSONObject("downloads").getJSONObject("artifact").getString("path").equals(childPath)){
-                            jsonObject = jsonArray.getJSONObject(i).getJSONObject("downloads").getJSONObject("classifiers");
-                            break;
-                        }
-                    }
+    public List<String> getMinecraftNativeLibrariesDownloadUrl(File versionJson) throws DownloadFailedException, OsNotSupportsException, FileNotFoundException {
+        List<String> list = new ArrayList<>();
+        JSONArray jsonArray = JSONObject.parseObject(StreamUtils.readJsonFile(versionJson)).getJSONArray("libraries");
+        for (int i = 0;i < jsonArray.size();i++){
+            JSONObject downloads = jsonArray.getJSONObject(i).getJSONObject("downloads");
+            if (downloads.containsKey("classifiers")){
+                JSONObject classifiers = downloads.getJSONObject("classifiers");
+                String key;
+                if (SystemUtils.getSystemName().contains("Windows")){
+                    key = "natives-windows";
+                }else if (SystemUtils.getSystemName().contains("Mac")){
+                    key = "natives-osx";
+                }else {
+                    key = "natives-linux";
+                }
+                if (classifiers.getJSONObject(key) != null){
+                    list.add(classifiers.getJSONObject(key).getString("url"));
                 }
             }
-            if (jsonObject == null){
-                throw new DownloadFailedException(versionJson.getName() + " is not standard");
-            }
-            if (os.contains("Mac")){
-                jsonObject = jsonObject.getJSONObject("natives-macos");
-
-            }else if (os.contains("Windows")){
-                jsonObject = jsonObject.getJSONObject("natives-windows");
-            }else if (os.contains("Linux")){
-                jsonObject = jsonObject.getJSONObject("natives-linux");
-            }else {
-                throw new OsNotSupportsException();
-            }
-            if (jsonObject != null){
-                return jsonObject.getString("url");
-            }else {
-                return null;
-            }
-        }else {
-            throw new DownloadFailedException("Could not find "+versionJson.getName()+" in "+versionJson.getPath());
         }
+        return list;
     }
 }

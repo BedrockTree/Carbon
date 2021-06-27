@@ -15,10 +15,6 @@ import java.util.*;
 
 public class DownloadUtils {
 
-    public static final String BMCLAPI = "https://bmclapi2.bangbang93.com";
-
-    public static final String MCBBS = "https://download.mcbbs.net";
-
     public static void download(String url, String path, String fileName) throws IOException {
 
         if (!new File(path + File.separator + fileName).exists()) {
@@ -57,11 +53,11 @@ public class DownloadUtils {
             long fileSize = (new URL(url).openConnection()).getContentLengthLong();
             URL downloadUrl = new URL(url);
             URLConnection urlConnection = downloadUrl.openConnection();
-            HttpURLConnection httpURLConnection = (HttpURLConnection) urlConnection;
-            httpURLConnection.setRequestMethod("GET");
-            httpURLConnection.setRequestProperty("Range", "bytes=0-");
-            httpURLConnection.connect();
-            InputStream inputStream = httpURLConnection.getInputStream();
+            HttpURLConnection httpUrlConnection = (HttpURLConnection) urlConnection;
+            httpUrlConnection.setRequestMethod("GET");
+            httpUrlConnection.setRequestProperty("Range", "bytes=0-");
+            httpUrlConnection.connect();
+            InputStream inputStream = httpUrlConnection.getInputStream();
             File file = new File(filePath);
             FileOutputStream outputStream = new FileOutputStream(file);
             byte[] bytes = new byte[4096];
@@ -112,22 +108,26 @@ public class DownloadUtils {
     }
 
     public static List<String> getLibraries(File versionJson) throws FileNotFoundException {
-        JSONObject versionJsonObject = JSON.parseObject(StreamUtils.readJsonFile(versionJson));
-        JSONArray libraries = versionJsonObject.getJSONArray("libraries");
         List<String> list = new ArrayList<String>();
+        JSONObject json = JSONObject.parseObject(StreamUtils.readJsonFile(versionJson));
+        JSONArray libraries = json.getJSONArray("libraries");
+        List<String> librariesList = new ArrayList<String>();
         for (int i = 0;i < libraries.size();i++){
             JSONObject downloads = libraries.getJSONObject(i).getJSONObject("downloads");
             if (libraries.getJSONObject(i).containsKey("rules")){
                 if (JSONUtils.rulesJudgmenter(libraries.getJSONObject(i).getJSONArray("rules"))){
                     if (downloads.containsKey("artifact")) {
-                        list.add(downloads.getJSONObject("artifact").getString("path"));
+                        librariesList.add(downloads.getJSONObject("artifact").getString("path"));
                     }
                 }
             }else {
                 if (downloads.containsKey("artifact")) {
-                    list.add(downloads.getJSONObject("artifact").getString("path"));
+                    librariesList.add(downloads.getJSONObject("artifact").getString("path"));
                 }
             }
+        }
+        for (String lib:librariesList){
+            list.add(lib);
         }
         return list;
     }

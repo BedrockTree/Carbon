@@ -6,8 +6,11 @@ import cn.org.bedrocktree.carbon.exceptions.OsNotSupportsException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.List;
 
 public abstract class MinecraftMirror {
+
+    public abstract String getLibUrl();
 
     public abstract String getMinecraftManifestJsonDownloadUrl();
 
@@ -21,8 +24,8 @@ public abstract class MinecraftMirror {
 
     public abstract String getMinecraftLoggerConfigDownloadUrl(File versionJson) throws FileNotFoundException;
 
-    public abstract String getMinecraftLibrariesDownloadUrl(String childPath);
+    public abstract List<String> getMinecraftLibrariesDownloadUrl(File versionJson) throws FileNotFoundException;
 
-    public abstract String getMinecraftNativeLibrariesDownloadUrl(File versionJson, String childPath) throws DownloadFailedException, OsNotSupportsException, FileNotFoundException;
+    public abstract List<String> getMinecraftNativeLibrariesDownloadUrl(File versionJson) throws DownloadFailedException, OsNotSupportsException, FileNotFoundException;
 
 }

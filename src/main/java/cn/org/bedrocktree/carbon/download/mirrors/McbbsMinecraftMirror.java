@@ -7,12 +7,19 @@ import cn.org.bedrocktree.carbon.exceptions.OsNotSupportsException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class McbbsMinecraftMirror extends MinecraftMirror {
 
     private static final String MCBBS_BASE_URL = "https://download.mcbbs.net/";
 
     OfficialMinecraftMirror official = new OfficialMinecraftMirror();
+
+    @Override
+    public String getLibUrl() {
+        return MCBBS_BASE_URL+"maven/";
+    }
 
     @Override
     public String getMinecraftManifestJsonDownloadUrl() {
@@ -46,16 +53,22 @@ public class McbbsMinecraftMirror extends MinecraftMirror {
     }
 
     @Override
-    public String getMinecraftLibrariesDownloadUrl(String childPath) {
-        return official.getMinecraftLibrariesDownloadUrl(childPath).replace("https://libraries.minecraft.net/",MCBBS_BASE_URL+"maven/");
+    public List<String> getMinecraftLibrariesDownloadUrl(File versionJson) throws FileNotFoundException {
+        List<String> list = official.getMinecraftLibrariesDownloadUrl(versionJson),result = new ArrayList<>();
+        for (String url:list){
+            result.add(url.replace("https://libraries.minecraft.net/",MCBBS_BASE_URL+"maven/"));
+        }
+        return result;
     }
 
     @Override
-    public String getMinecraftNativeLibrariesDownloadUrl(File versionJson, String childPath) throws DownloadFailedException, OsNotSupportsException, FileNotFoundException {
-        if (official.getMinecraftNativeLibrariesDownloadUrl(versionJson, childPath) != null) {
-            return official.getMinecraftNativeLibrariesDownloadUrl(versionJson, childPath).replace("https://libraries.minecraft.net/", MCBBS_BASE_URL + "maven/");
-        }else {
-            return null;
+    public List<String> getMinecraftNativeLibrariesDownloadUrl(File versionJson) throws DownloadFailedException, OsNotSupportsException, FileNotFoundException {
+        List<String> list = official.getMinecraftNativeLibrariesDownloadUrl(versionJson),result = new ArrayList<>();
+        for (String url:list){
+            result.add(url.replace("https://libraries.minecraft.net/",MCBBS_BASE_URL+"maven/"));
         }
+        return result;
     }
+
+
 }
