@@ -37,8 +37,18 @@ public class McbbsMinecraftMirror extends MinecraftMirror {
     }
 
     @Override
+    public String getMinecraftJarSha1(File versionJson) throws DownloadFailedException, FileNotFoundException {
+        return official.getMinecraftJarSha1(versionJson);
+    }
+
+    @Override
     public String getMinecraftIndexJsonDownloadUrl(File versionJson) throws FileNotFoundException {
         return official.getMinecraftIndexJsonDownloadUrl(versionJson).replace("https://launchermeta.mojang.com/",MCBBS_BASE_URL);
+    }
+
+    @Override
+    public String getMinecraftIndexJsonSha1(File versionJson) throws FileNotFoundException {
+        return official.getMinecraftIndexJsonSha1(versionJson);
     }
 
     @Override
@@ -53,12 +63,22 @@ public class McbbsMinecraftMirror extends MinecraftMirror {
     }
 
     @Override
+    public String getMinecraftLoggerConfigSha1(File versionJson) throws FileNotFoundException {
+        return official.getMinecraftLoggerConfigSha1(versionJson);
+    }
+
+    @Override
     public List<String> getMinecraftLibrariesDownloadUrl(File versionJson) throws FileNotFoundException {
         List<String> list = official.getMinecraftLibrariesDownloadUrl(versionJson),result = new ArrayList<>();
         for (String url:list){
             result.add(url.replace("https://libraries.minecraft.net/",MCBBS_BASE_URL+"maven/"));
         }
         return result;
+    }
+
+    @Override
+    public List<String> getMinecraftLibrariesSha1(File versionJson) throws FileNotFoundException {
+        return official.getMinecraftLibrariesSha1(versionJson);
     }
 
     @Override
@@ -70,5 +90,8 @@ public class McbbsMinecraftMirror extends MinecraftMirror {
         return result;
     }
 
-
+    @Override
+    public List<String> getMinecraftNativeLibrariesSha1(File versionJson) throws DownloadFailedException, OsNotSupportsException, FileNotFoundException {
+        return official.getMinecraftNativeLibrariesSha1(versionJson);
+    }
 }

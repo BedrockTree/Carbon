@@ -17,7 +17,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 public class OfficialMinecraftMirror extends MinecraftMirror {
 
@@ -70,13 +69,30 @@ public class OfficialMinecraftMirror extends MinecraftMirror {
     }
 
     @Override
+    public String getMinecraftJarSha1(File versionJson) throws DownloadFailedException, FileNotFoundException {
+        if (versionJson.exists()){
+            JSONObject jsonObject = JSONObject.parseObject(StreamUtils.readJsonFile(versionJson));
+            return jsonObject.getJSONObject("downloads").getJSONObject("client").getString("sha1");
+        }else {
+            throw new DownloadFailedException("Could not find " + versionJson.getName() +" in " + versionJson.getPath());
+        }
+    }
+
+    @Override
     public String getMinecraftIndexJsonDownloadUrl(File versionJson) throws FileNotFoundException {
         JSONObject jsonObject = JSONObject.parseObject(StreamUtils.readJsonFile(versionJson));
         return jsonObject.getJSONObject("assetIndex").getString("url");
     }
 
     @Override
-    public String getMinecraftResourceDownloadUrl(String hashFirst2,String hash) throws DownloadFailedException, FileNotFoundException {
+    public String getMinecraftIndexJsonSha1(File versionJson) throws FileNotFoundException {
+        JSONObject jsonObject = JSONObject.parseObject(StreamUtils.readJsonFile(versionJson));
+        return jsonObject.getJSONObject("assetIndex").getString("sha1");
+    }
+
+
+    @Override
+    public String getMinecraftResourceDownloadUrl(String hashFirst2,String hash){
         String result = "http://resources.download.minecraft.net/";
         result += hashFirst2+"/"+hash;
         return result;
@@ -86,6 +102,12 @@ public class OfficialMinecraftMirror extends MinecraftMirror {
     public String getMinecraftLoggerConfigDownloadUrl(File versionJson) throws FileNotFoundException {
         JSONObject jsonObject = JSON.parseObject(StreamUtils.readJsonFile(versionJson));
         return jsonObject.getJSONObject("logging").getJSONObject("client").getJSONObject("file").getString("url");
+    }
+
+    @Override
+    public String getMinecraftLoggerConfigSha1(File versionJson) throws FileNotFoundException {
+        JSONObject jsonObject = JSON.parseObject(StreamUtils.readJsonFile(versionJson));
+        return jsonObject.getJSONObject("logging").getJSONObject("client").getJSONObject("file").getString("sha1");
     }
 
     @Override
@@ -111,6 +133,28 @@ public class OfficialMinecraftMirror extends MinecraftMirror {
     }
 
     @Override
+    public List<String> getMinecraftLibrariesSha1(File versionJson) throws FileNotFoundException {
+        JSONObject json = JSONObject.parseObject(StreamUtils.readJsonFile(versionJson));
+        JSONArray libraries = json.getJSONArray("libraries");
+        List<String> librariesList = new ArrayList<String>();
+        for (int i = 0;i < libraries.size();i++){
+            JSONObject downloads = libraries.getJSONObject(i).getJSONObject("downloads");
+            if (libraries.getJSONObject(i).containsKey("rules")){
+                if (JSONUtils.rulesJudgmenter(libraries.getJSONObject(i).getJSONArray("rules"))){
+                    if (downloads.containsKey("artifact")) {
+                        librariesList.add(downloads.getJSONObject("artifact").getString("sha1"));
+                    }
+                }
+            }else {
+                if (downloads.containsKey("artifact")) {
+                    librariesList.add(downloads.getJSONObject("artifact").getString("sha1"));
+                }
+            }
+        }
+        return librariesList;
+    }
+
+    @Override
     public List<String> getMinecraftNativeLibrariesDownloadUrl(File versionJson) throws DownloadFailedException, OsNotSupportsException, FileNotFoundException {
         List<String> list = new ArrayList<>();
         JSONArray jsonArray = JSONObject.parseObject(StreamUtils.readJsonFile(versionJson)).getJSONArray("libraries");
@@ -128,6 +172,30 @@ public class OfficialMinecraftMirror extends MinecraftMirror {
                 }
                 if (classifiers.getJSONObject(key) != null){
                     list.add(classifiers.getJSONObject(key).getString("url"));
+                }
+            }
+        }
+        return list;
+    }
+
+    @Override
+    public List<String> getMinecraftNativeLibrariesSha1(File versionJson) throws DownloadFailedException, OsNotSupportsException, FileNotFoundException {
+        List<String> list = new ArrayList<>();
+        JSONArray jsonArray = JSONObject.parseObject(StreamUtils.readJsonFile(versionJson)).getJSONArray("libraries");
+        for (int i = 0;i < jsonArray.size();i++){
+            JSONObject downloads = jsonArray.getJSONObject(i).getJSONObject("downloads");
+            if (downloads.containsKey("classifiers")){
+                JSONObject classifiers = downloads.getJSONObject("classifiers");
+                String key;
+                if (SystemUtils.getSystemName().contains("Windows")){
+                    key = "natives-windows";
+                }else if (SystemUtils.getSystemName().contains("Mac")){
+                    key = "natives-osx";
+                }else {
+                    key = "natives-linux";
+                }
+                if (classifiers.getJSONObject(key) != null){
+                    list.add(classifiers.getJSONObject(key).getString("sha1"));
                 }
             }
         }

@@ -18,14 +18,25 @@ public abstract class MinecraftMirror {
 
     public abstract String getMinecraftJarDownloadUrl(File versionJson) throws DownloadFailedException, FileNotFoundException;
 
+    public abstract String getMinecraftJarSha1(File versionJson) throws DownloadFailedException, FileNotFoundException;
+
     public abstract String getMinecraftIndexJsonDownloadUrl(File versionJson) throws FileNotFoundException;
+
+    public abstract String getMinecraftIndexJsonSha1(File versionJson) throws FileNotFoundException;
 
     public abstract String getMinecraftResourceDownloadUrl(String hashFirst2, String hash) throws DownloadFailedException, FileNotFoundException;
 
+    //public abstract String getMinecraftResourceSha1(String hashFirst2, String hash) throws DownloadFailedException, FileNotFoundException;
+
     public abstract String getMinecraftLoggerConfigDownloadUrl(File versionJson) throws FileNotFoundException;
+
+    public abstract String getMinecraftLoggerConfigSha1(File versionJson) throws FileNotFoundException;
 
     public abstract List<String> getMinecraftLibrariesDownloadUrl(File versionJson) throws FileNotFoundException;
 
+    public abstract List<String> getMinecraftLibrariesSha1(File versionJson) throws FileNotFoundException;
+
     public abstract List<String> getMinecraftNativeLibrariesDownloadUrl(File versionJson) throws DownloadFailedException, OsNotSupportsException, FileNotFoundException;
 
+    public abstract List<String> getMinecraftNativeLibrariesSha1(File versionJson) throws DownloadFailedException, OsNotSupportsException, FileNotFoundException;
 }

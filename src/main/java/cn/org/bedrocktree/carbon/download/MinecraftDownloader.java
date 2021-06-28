@@ -7,13 +7,13 @@ import cn.org.bedrocktree.carbon.utils.DownloadUtils;
 import cn.org.bedrocktree.carbon.utils.StreamUtils;
 import com.alibaba.fastjson.JSONObject;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.concurrent.*;
+
 
 public class MinecraftDownloader {
 
@@ -23,16 +23,22 @@ public class MinecraftDownloader {
 
     public boolean isVersionIsolation;
 
-    public  File manifest = new File(path+File.separator+"version_manifest.json");
+    public  File manifest;
 
     public File versionJson,indexJson;
 
-    public MinecraftDownloader(MinecraftMirror mirror,String version,String versionName,String path,boolean isVersionIsolation) throws DownloadFailedException, NoSuchMinecraftVersionException, IOException {
+    public int threadCount;
+
+    private final ThreadPoolExecutor threadPool;
+
+    public MinecraftDownloader(MinecraftMirror mirror,String version,String versionName,String path,boolean isVersionIsolation,int thread){
         this.minecraftMirror = mirror;
         this.version = version;
         this.versionName = versionName;
         this.path = path;
+        this.manifest = new File(path+File.separator+"version_manifest.json");
         this.isVersionIsolation = isVersionIsolation;
+        this.threadCount = thread;
         if (isVersionIsolation){
             gamePath = path+File.separator+".minecraft"+File.separator+"versions"+File.separator+versionName;
         }else {
@@ -62,80 +68,173 @@ public class MinecraftDownloader {
         if (!(new File(libPath)).exists()){
             new File(libPath).mkdirs();
         }
+        if (!(new File(libPath)).exists()){
+            new File(libPath).mkdirs();
+        }
+        this.threadPool = new ThreadPoolExecutor(10,10,0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>());
     }
 
-    private void downloadManifest() throws IOException {
-        DownloadUtils.download(minecraftMirror.getMinecraftManifestJsonDownloadUrl(),path,"version_manifest.json");
+    private void downloadManifest(){
+        try {
+            DownloadUtils.download(minecraftMirror.getMinecraftManifestJsonDownloadUrl(),path,"version_manifest.json");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         manifest = new File(path+File.separator+"version_manifest.json");
     }
 
-    private void downloadJson() throws DownloadFailedException, NoSuchMinecraftVersionException, IOException {
-        DownloadUtils.download(minecraftMirror.getMinecraftJsonDownloadUrl(new File(path+File.separator+"version_manifest.json"),version),gamePath,version+".json");
-        this.versionJson = new File(gamePath+File.separator+version+".json");
-    }
-
-    private void downloadJar() throws DownloadFailedException, NoSuchMinecraftVersionException, IOException {
-        if (manifest.exists()){
-            downloadManifest();
+    private void downloadJson() {
+        try {
+            DownloadUtils.download(minecraftMirror.getMinecraftJsonDownloadUrl(new File(path+File.separator+"version_manifest.json"),version),gamePath,version+".json");
+        } catch (IOException | DownloadFailedException | NoSuchMinecraftVersionException e) {
+            e.printStackTrace();
         }
-        if (!versionJson.exists()){
-            downloadJson();
-        }
-        DownloadUtils.download(minecraftMirror.getMinecraftJarDownloadUrl(versionJson),gamePath,version+".jar");
+        MinecraftDownloader.this.versionJson = new File(gamePath+File.separator+version+".json");
     }
 
-    private void downloadAssetIndexJson() throws IOException {
-        DownloadUtils.download(minecraftMirror.getMinecraftIndexJsonDownloadUrl(versionJson),indexPath+File.separator+JSONObject.parseObject(StreamUtils.readJsonFile(versionJson)).getString("assets")+".json");
-        this.indexJson = new File(indexPath+File.separator+JSONObject.parseObject(StreamUtils.readJsonFile(versionJson)).getString("assets")+".json");
-    }
-
-    private void downloadResourceObjects() throws IOException, DownloadFailedException {
-        Map<String,String> map = DownloadUtils.getObjects(indexJson);
-        Set<String> keySet = map.keySet();
-        for (int i = 0;i < map.size();i++){
-            String key = (String) keySet.toArray()[i];
-            String hash = map.get(key);
-            File path = new File(objectsPath+File.separator+hash.substring(0,2));
-            path.mkdirs();
-            DownloadUtils.download(minecraftMirror.getMinecraftResourceDownloadUrl(hash.substring(0,2),hash),path.getPath(),hash);
-        }
-    }
-
-    private void downloadLoggerConfig() throws IOException {
-        DownloadUtils.download(minecraftMirror.getMinecraftLoggerConfigDownloadUrl(versionJson),loggingPath,JSONObject.parseObject(StreamUtils.readJsonFile(versionJson)).getJSONObject("logging").getJSONObject("client").getJSONObject("file").getString("id"));
-    }
-
-    private void downloadLibraries() throws IOException {
-        List<String> libraries = minecraftMirror.getMinecraftLibrariesDownloadUrl(versionJson);
-        for (String url : libraries){
-            String path = url.replaceAll(minecraftMirror.getLibUrl(),"").replaceAll("/",File.separator);
-            new File(libPath+path).getParentFile().mkdirs();
-            DownloadUtils.download(url,(libPath+path).replaceAll("/",File.separator));
-        }
-    }
-
-    private void downloadNativeLibraries() throws IOException, DownloadFailedException, OsNotSupportsException {
-        List<String> natives = minecraftMirror.getMinecraftNativeLibrariesDownloadUrl(versionJson);
-        for (String url : natives){
-            if (minecraftMirror.getMinecraftNativeLibrariesDownloadUrl(versionJson) != null){
-                DownloadUtils.download(url,nativePath+File.separator+url.substring(url.lastIndexOf("/")+1));
-                DownloadUtils.unzipNativeLibraries(nativePath+File.separator+url.substring(url.lastIndexOf("/")+1),nativePath);
-                new File(nativePath+File.separator+url.substring(url.lastIndexOf("/")+1),nativePath).delete();
+    private void downloadJar(){
+        threadPool.execute(new Thread(() -> {
+            if (manifest.exists()){
+                downloadManifest();
             }
+            if (!versionJson.exists()){
+                downloadJson();
+            }
+            try {
+                DownloadUtils.download(minecraftMirror.getMinecraftJarDownloadUrl(versionJson),gamePath,version+".jar",minecraftMirror.getMinecraftJarSha1(versionJson));
+            } catch (IOException | DownloadFailedException e) {
+                e.printStackTrace();
+            }
+        }));
+    }
+
+    private void downloadAssetIndexJson(){
+        try {
+            DownloadUtils.download(minecraftMirror.getMinecraftIndexJsonDownloadUrl(versionJson),indexPath+File.separator,JSONObject.parseObject(StreamUtils.readJsonFile(versionJson)).getString("assets")+".json",minecraftMirror.getMinecraftIndexJsonSha1(versionJson));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            MinecraftDownloader.this.indexJson = new File(indexPath+File.separator+JSONObject.parseObject(StreamUtils.readJsonFile(versionJson)).getString("assets")+".json");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
     }
 
-    public void download() throws DownloadFailedException, NoSuchMinecraftVersionException, IOException, OsNotSupportsException {
+    private void downloadResourceObjects(){
+        threadPool.execute(new Thread(() -> {
+            ThreadPoolExecutor downloadThreadPool = new ThreadPoolExecutor(threadCount-10,threadCount-10,0L, TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<>());
+            Map<String,String> map = null;
+            try {
+                map = DownloadUtils.getObjects(indexJson);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            Set<String> keySet = map.keySet();
+            for (int i = 0;i < map.size();i++){
+                String key = (String) keySet.toArray()[i];
+                String hash = map.get(key);
+                File path = new File(objectsPath+File.separator+hash.substring(0,2));
+                path.mkdirs();
+                downloadThreadPool.execute(new Thread(() -> {
+                    try {
+                        DownloadUtils.download(minecraftMirror.getMinecraftResourceDownloadUrl(hash.substring(0,2),hash),path.getPath(),hash);
+                    } catch (IOException | DownloadFailedException e) {
+                        e.printStackTrace();
+                    }
+                }));
+            }
+            downloadThreadPool.shutdown();
+        }));
+    }
+
+    private void downloadLoggerConfig(){
+        threadPool.execute(new Thread(() -> {
+            try {
+                DownloadUtils.download(minecraftMirror.getMinecraftLoggerConfigDownloadUrl(versionJson),loggingPath,JSONObject.parseObject(StreamUtils.readJsonFile(versionJson)).getJSONObject("logging").getJSONObject("client").getJSONObject("file").getString("id"),minecraftMirror.getMinecraftLoggerConfigSha1(versionJson));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }));
+    }
+
+    private void downloadLibraries(){
+        threadPool.execute(new Thread(() -> {
+            ThreadPoolExecutor downloadThreadPool = new ThreadPoolExecutor(10,10,0L, TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<>());
+            List<String> libraries = null,sha1 = null;
+            try {
+                sha1 = minecraftMirror.getMinecraftLibrariesSha1(versionJson);
+                libraries = minecraftMirror.getMinecraftLibrariesDownloadUrl(versionJson);
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            for (int i = 0;i < libraries.size();i++){
+                String url = libraries.get(i);
+                String path = url.replaceAll(minecraftMirror.getLibUrl(),"").replaceAll("/",File.separator);
+                new File(libPath+path).getParentFile().mkdirs();
+                List<String> finalSha = sha1;
+                int finalI = i;
+                downloadThreadPool.execute(new Thread(() -> {
+                    try {
+                        DownloadUtils.download(url,(libPath+path).replaceAll("/",File.separator),"", finalSha.get(finalI));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }));
+            }
+            downloadThreadPool.shutdown();
+        }));
+    }
+
+    private void downloadNativeLibraries(){
+        threadPool.execute(new Thread(() -> {
+
+            List<String> natives = null,sha1 = null;
+            try {
+                natives = minecraftMirror.getMinecraftNativeLibrariesDownloadUrl(versionJson);
+                sha1 = minecraftMirror.getMinecraftNativeLibrariesSha1(versionJson);
+            } catch (DownloadFailedException | OsNotSupportsException | FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            for (int i = 0;i < natives.size();i++){
+                String url = natives.get(i);
+                try {
+                    if (minecraftMirror.getMinecraftNativeLibrariesDownloadUrl(versionJson) != null){
+                        try {
+                            DownloadUtils.download(url,nativePath+File.separator+url.substring(url.lastIndexOf("/")+1),"",sha1.get(i));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            DownloadUtils.unzipNativeLibraries(nativePath+File.separator+url.substring(url.lastIndexOf("/")+1),nativePath);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        new File(nativePath+File.separator+url.substring(url.lastIndexOf("/")+1),nativePath).delete();
+                    }
+                } catch (DownloadFailedException | OsNotSupportsException | FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        }));
+    }
+
+    public void download() throws FileNotFoundException {
         downloadManifest();
         downloadJson();
-        downloadJar();
         downloadAssetIndexJson();
+        downloadJar();
         downloadResourceObjects();
         if (JSONObject.parseObject(StreamUtils.readJsonFile(versionJson)).containsKey("logging")) {
             downloadLoggerConfig();
         }
         downloadLibraries();
         downloadNativeLibraries();
+        threadPool.shutdown();
     }
-
 }

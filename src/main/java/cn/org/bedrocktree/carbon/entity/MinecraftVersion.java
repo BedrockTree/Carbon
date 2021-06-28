@@ -114,6 +114,7 @@ public class MinecraftVersion {
             launchCommandLine += " --uuid " + userProfile.getUuid();
             launchCommandLine += " --accessToken " + userProfile.getToken();
             launchCommandLine += " --versionType " + versionType;
+            launchCommandLine += " --userProperties {\"registrationCountry\":[\"CN\"]}";
             return launchCommandLine;
         }
     }
