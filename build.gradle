@@ -1,0 +1,79 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        maven { url = "https://maven.aliyun.com/repository/public/" }
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:6.1.0'
+    }
+}
+
+plugins {
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
+}
+
+apply plugin: 'java'
+apply plugin: 'application'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+mainClassName = "cn.org.bedrocktree.carbon.Carbon"
+
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'cn.org.bedrocktree.carbon.Carbon'
+        attributes 'SplashScreen-Image': 'icon/icon.png'
+    }
+}
+
+application{
+
+}
+
+group 'cn.org.bedrocktree.carbon'
+version ''
+
+repositories {
+    mavenLocal()
+    maven { url = "https://maven.aliyun.com/repository/public/" }
+    maven {url = "https://repo.maven.apache.org/maven2"}
+    mavenCentral()
+}
+
+
+dependencies {
+    implementation(
+            'com.alibaba:fastjson:1.2.78',
+            'commons-configuration:commons-configuration:1.10',
+            'commons-io:commons-io:20030203.000550',
+            'org.apache.logging.log4j:log4j-api:2.14.1',
+            'org.apache.logging.log4j:log4j-core:2.14.1',
+            "com.squareup.okhttp3:okhttp:5.0.0-alpha.2",
+            "com.microsoft.alm:oauth2-useragent:0.11.3",
+            'net.lingala.zip4j:zip4j:2.9.0',
+            'commons-codec:commons-codec:1.12',
+            'commons-cli:commons-cli:20040117.000000'
+    )
+}
+
+shadowJar{
+    baseName("Carbon")
+    classifier(null)
+    manifest {
+        attributes 'Main-Class': 'cn.org.bedrocktree.carbon.Carbon'
+        attributes 'SplashScreen-Image': 'icon/icon.png'
+    }
+    dependencies {
+        include(dependency("com.alibaba:fastjson:1.2.78"))
+        include(dependency("commons-configuration:commons-configuration:1.10"))
+        include(dependency("commons-io:commons-io:20030203.000550"))
+        include(dependency("org.apache.logging.log4j:log4j-api:2.14.1"))
+        include(dependency("org.apache.logging.log4j:log4j-core:2.14.1"))
+        include(dependency("com.squareup.okhttp3:okhttp:5.0.0-alpha.2"))
+        include(dependency("com.microsoft.alm:oauth2-useragent:0.11.3"))
+        include(dependency("net.lingala.zip4j:zip4j:2.9.0"))
+        include(dependency("commons-codec:commons-codec:1.12"))
+        include(dependency("commons-cli:commons-cli:20040117.000000"))
+    }
+}
