@@ -83,17 +83,17 @@ public class DownloadUtils {
 
         if (!new File(path + File.separator + fileName).exists()) {
             do {
+                //System.out.println(url+"\n"+path+fileName +"\n  "+new DigestUtils(MessageDigestAlgorithms.SHA_1).digestAsHex(new File(path + File.separator + fileName))+"   "+sha1+"\n\n");
                 System.gc();
                 new File(path + File.separator + fileName).delete();
                 download(url, path, fileName);
-                System.out.println(url+"\n"+path+fileName +"\n  "+new DigestUtils(MessageDigestAlgorithms.SHA_1).digestAsHex(new File(path + File.separator + fileName))+"   "+sha1+"\n\n");
             } while (!(new DigestUtils(MessageDigestAlgorithms.SHA_1).digestAsHex(new File(path + File.separator + fileName)).equals(sha1)));
         } else if (!(new DigestUtils(MessageDigestAlgorithms.SHA_1).digestAsHex(new File(path + File.separator + fileName)).equals(sha1))) {
             do {
+                //System.out.println(url+"\n"+path+fileName +"\n  "+new DigestUtils(MessageDigestAlgorithms.SHA_1).digestAsHex(new File(path + File.separator + fileName))+"   "+sha1+"\n\n");
                 System.gc();
                 new File(path + File.separator + fileName).delete();
                 download(url, path, fileName);
-                System.out.println(url+"\n"+path+fileName +"\n  "+new DigestUtils(MessageDigestAlgorithms.SHA_1).digestAsHex(new File(path + File.separator + fileName))+"   "+sha1+"\n\n");
             } while (!(new DigestUtils(MessageDigestAlgorithms.SHA_1).digestAsHex(new File(path + File.separator + fileName)).equals(sha1)));
         }
     }

@@ -38,3 +38,5 @@ zip -r -q -o ../Windows/Carbon-Windows-x86_64.zip ./Carbon-Windows-x86_64
 zip -r -q -o ../Windows/Carbon-Windows-i386.zip ./Carbon-Windows-i386
 cd ../
 rm -rf ./tmp
+cd ../
+./gradlew clean

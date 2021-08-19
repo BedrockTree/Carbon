@@ -28,9 +28,13 @@ public class ColorEnum {
 
     public static final Color GREY_35 = new Color(35,35,35);
 
+    public static final Color GREY_45 = new Color(45,45,45);
+
     public static final Color GREY_50 = new Color(50,50,50);
 
     public static final Color GREY_55 = new Color(55,55,55);
+
+    public static final Color GREY_65 = new Color(65,65,65);
 
     public static final Color GREY_70 = new Color(70,70,70);
 

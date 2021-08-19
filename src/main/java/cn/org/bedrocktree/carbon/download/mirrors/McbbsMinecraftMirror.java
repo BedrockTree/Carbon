@@ -58,8 +58,7 @@ public class McbbsMinecraftMirror extends MinecraftMirror {
 
     @Override
     public String getMinecraftLoggerConfigDownloadUrl(File versionJson) throws FileNotFoundException {
-        //return official.getMinecraftLoggerConfigDownloadUrl(versionJson).replace("https://launcher.mojang.com/",MCBBS_BASE_URL);
-        return official.getMinecraftLoggerConfigDownloadUrl(versionJson);
+        return official.getMinecraftLoggerConfigDownloadUrl(versionJson).replace("https://launcher.mojang.com/",MCBBS_BASE_URL);
     }
 
     @Override

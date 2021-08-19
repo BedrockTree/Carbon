@@ -8,6 +8,7 @@ import javax.swing.*;
 import javax.swing.plaf.ColorUIResource;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Objects;
@@ -34,24 +35,13 @@ public class MainWindow {
 
     private final JPanel center = new JPanel(cardLayout);
 
-    private final JPanel homePanel = new JPanel(new BorderLayout(0,0));
-
-    private final JPanel launchBar = new JPanel(new FlowLayout(FlowLayout.RIGHT,10,10));
-
-    private final MyJButton launch = new MyJButton("Launch","launch");
-
-    //TODO 列表
-    private final JComboBox<String> versionChooser = new JComboBox<String>(new String[]{"1.12.2"});
-
-    private final JComboBox<JLabel> profileChooser = new JComboBox<>(new JLabel[] {new JLabel("az")});
-
-    private final JLabel version = new JLabel("Game Version");
+    private final HomePanel homePanel = new HomePanel();
 
     private final JPanel profilePanel = new JPanel(new GridLayout());
 
     private final JPanel gamesPanel = new JPanel(new GridLayout());
 
-    private final JPanel downloadsPanel = new JPanel(new GridLayout(10,1,25,25));
+    private final DownloadsPanel downloadsPanel = new DownloadsPanel(new File("/data/Projects/Java/Another/Carbon/Test/version_manifest.json"));
 
     private final JPanel settingsPanel = new JPanel(new GridLayout());
 
@@ -85,7 +75,7 @@ public class MainWindow {
         UIManager.put("ScrollBar.trackHighlightForeground", (ColorEnum.GREY_35));
         UIManager.put("scrollbar", (ColorEnum.GREY_35));
         UIManager.put("ScrollBar.thumb", new ColorUIResource(ColorEnum.GREY_35));
-        UIManager.put("ScrollBar.thumbHeight", 2);
+        UIManager.put("ScrollBar.thumbHeight", 15);
         UIManager.put("ScrollBar.background", (ColorEnum.GREY_35));
         UIManager.put("ScrollBar.thumbDarkShadow", new ColorUIResource(ColorEnum.GREY_35));
         UIManager.put("ScrollBar.thumbShadow", new ColorUIResource(ColorEnum.GREY_35));
@@ -95,35 +85,30 @@ public class MainWindow {
         UIManager.put("ScrollBar.foreground", new ColorUIResource(ColorEnum.GREY_35));
         UIManager.put("ScrollBar.shadow", new ColorUIResource(ColorEnum.GREY_35));
         UIManager.put("ScrollBar.highlight", new ColorUIResource(ColorEnum.GREY_35));
+        UIManager.put("ScrollPane.background", (ColorEnum.GREY_35));
+        UIManager.put("ScrollPane.foreground", (ColorEnum.GREY_35));
+
     }
 
     public void init() throws IOException {
-
         this.setSizes();
         this.setComponents();
         this.setBackgrounds();
         this.addComponents();
         this.addListeners();
         this.mainFrame.setVisible(true);
-
     }
 
-
-    private void setSizes(){
-
-        this.top.setSize(800,20);
-        this.control.setSize(800,20);
-        this.left.setPreferredSize(new Dimension(200,480));
-        this.homePanel.setSize(600,480);
-        this.profilePanel.setSize(600,480);
-        this.gamesPanel.setSize(600,480);
-        this.downloadsPanel.setSize(600,480);
-        this.settingsPanel.setSize(600,480);
-        this.aboutPanel.setSize(600,480);
-        this.launchBar.setSize(500,60);
-        this.launch.setSize(70,50);
-
-
+    private void setSizes() {
+        this.top.setSize(800, 20);
+        this.control.setSize(800, 20);
+        this.left.setPreferredSize(new Dimension(200, 480));
+        this.homePanel.setSize(600, 480);
+        this.profilePanel.setSize(600, 480);
+        this.gamesPanel.setSize(600, 480);
+        this.downloadsPanel.setSize(600, 480);
+        this.settingsPanel.setSize(600, 480);
+        this.aboutPanel.setSize(600, 480);
     }
 
     private void addComponents(){
@@ -149,10 +134,6 @@ public class MainWindow {
         this.center.add(downloadsPanel,"downloads");
         this.center.add(settingsPanel,"settings");
         this.center.add(aboutPanel,"about");
-        this.homePanel.add(launchBar,BorderLayout.SOUTH);
-        this.launchBar.add(version);
-        this.launchBar.add(versionChooser);
-        this.launchBar.add(launch);
 
     }
     private void setBackgrounds(){
@@ -166,9 +147,6 @@ public class MainWindow {
         this.downloadsPanel.setBackground(ColorEnum.GREY_75);
         this.settingsPanel.setBackground(ColorEnum.GREY_75);
         this.aboutPanel.setBackground(ColorEnum.GREY_75);
-        this.launchBar.setBackground(ColorEnum.GREY_50);
-        this.launch.setDefaultBackground(ColorEnum.GREY_35);
-        this.versionChooser.setBackground(ColorEnum.GREY_55);
 
     }
     private void setComponents() throws IOException {
@@ -191,26 +169,8 @@ public class MainWindow {
         this.home.setBackground(ColorEnum.GREY_55);
         this.home.isSelected = true;
 
-        this.launchBar.setPreferredSize(new Dimension(500,60));
-        this.launchBar.setForeground(ColorEnum.WHITE);
-
-        this.launch.setPreferredSize(new Dimension(150,40));
-        this.launch.setBorderPainted(true);
-        this.launch.setBorder(BorderFactory.createLineBorder(ColorEnum.GREY_25,1,true));
-
-        this.versionChooser.setPreferredSize(new Dimension(320,35));
-        this.versionChooser.setBorder(BorderFactory.createLineBorder(ColorEnum.GREY_25,1,true));
-        this.versionChooser.setForeground(ColorEnum.WHITE);
-        this.versionChooser.setFocusable(false);
-        this.versionChooser.setEditable(false);
-        this.versionChooser.setToolTipText("Choose a Game Version");
-        this.versionChooser.setUI(new MyComboBoxUI());
-        this.versionChooser.setRenderer(new MyListCellRenderer());
-
-        this.version.setForeground(ColorEnum.WHITE);
     }
-
-
+    
     private void addListeners(){
 
         this.minimize.addActionListener(actionEvent -> mainFrame.setExtendedState(Frame.ICONIFIED));
@@ -285,10 +245,5 @@ public class MainWindow {
             }
         });
 
-        this.launch.addActionListener(e -> {
-
-
-
-        });
     }
 }

@@ -14,6 +14,9 @@ public class MyJButton extends JButton {
 
     Color oldColor = MyJButton.this.getBackground();
 
+    Color mousePressedColor = ColorEnum.GREY_55;
+
+    Color mouseEnteredColor = ColorEnum.GREY_50;
 
     public MyJButton(){
         super();
@@ -41,6 +44,14 @@ public class MyJButton extends JButton {
         this.addListeners();
     }
 
+    public void setMousePressedColor(Color mousePressedColor) {
+        this.mousePressedColor = mousePressedColor;
+    }
+
+    public void setMouseEnteredColor(Color mouseEnteredColor) {
+        this.mouseEnteredColor = mouseEnteredColor;
+    }
+
     public void addListeners(){
         this.addMouseListener(new MouseListener() {
             @Override
@@ -50,7 +61,7 @@ public class MyJButton extends JButton {
             @Override
             public void mousePressed(MouseEvent mouseEvent) {
 
-                MyJButton.this.setBackground(ColorEnum.GREY_55);
+                MyJButton.this.setBackground(mousePressedColor);
             }
 
             @Override
@@ -61,7 +72,7 @@ public class MyJButton extends JButton {
             @Override
             public void mouseEntered(MouseEvent mouseEvent) {
                 MyJButton.this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                MyJButton.this.setBackground(ColorEnum.GREY_50);
+                MyJButton.this.setBackground(mouseEnteredColor);
             }
 
             @Override

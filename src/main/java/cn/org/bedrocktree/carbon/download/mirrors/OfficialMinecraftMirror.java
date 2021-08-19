@@ -48,9 +48,6 @@ public class OfficialMinecraftMirror extends MinecraftMirror {
             if (json == null){
                 throw new DownloadFailedException("version_manifest.json is not standard");
             }
-            if (!isVersionExist){
-                throw new NoSuchMinecraftVersionException(version);
-            }
             return json.getString("url");
 
         }else {
@@ -165,8 +162,6 @@ public class OfficialMinecraftMirror extends MinecraftMirror {
                 String key;
                 if (SystemUtils.getSystemName().contains("Windows")){
                     key = "natives-windows";
-                }else if (SystemUtils.getSystemName().contains("Mac")){
-                    key = "natives-osx";
                 }else {
                     key = "natives-linux";
                 }
@@ -189,8 +184,6 @@ public class OfficialMinecraftMirror extends MinecraftMirror {
                 String key;
                 if (SystemUtils.getSystemName().contains("Windows")){
                     key = "natives-windows";
-                }else if (SystemUtils.getSystemName().contains("Mac")){
-                    key = "natives-osx";
                 }else {
                     key = "natives-linux";
                 }

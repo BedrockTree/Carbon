@@ -26,8 +26,6 @@ public abstract class MinecraftMirror {
 
     public abstract String getMinecraftResourceDownloadUrl(String hashFirst2, String hash) throws DownloadFailedException, FileNotFoundException;
 
-    //public abstract String getMinecraftResourceSha1(String hashFirst2, String hash) throws DownloadFailedException, FileNotFoundException;
-
     public abstract String getMinecraftLoggerConfigDownloadUrl(File versionJson) throws FileNotFoundException;
 
     public abstract String getMinecraftLoggerConfigSha1(File versionJson) throws FileNotFoundException;

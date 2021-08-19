@@ -17,7 +17,7 @@ public class InitFiles {
     public static final File PROFILE_JSON_FILE = new File(CONFIG_DIRECTORY+ File.separator+"profile.json");
 
 
-    public static void init() throws IOException {
+    public static void init() {
         genDirectory();
         genConfigFile();
     }
@@ -37,12 +37,20 @@ public class InitFiles {
             MINECRAFT_DIRECTORY.mkdirs();
         }
     }
-    public static void genConfigFile() throws IOException {
+    public static void genConfigFile() {
         if (!CONFIG_FILE.exists()){
-            CONFIG_FILE.createNewFile();
+            try {
+                CONFIG_FILE.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         if (PROFILE_JSON_FILE.exists()){
-            PROFILE_JSON_FILE.createNewFile();
+            try {
+                PROFILE_JSON_FILE.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

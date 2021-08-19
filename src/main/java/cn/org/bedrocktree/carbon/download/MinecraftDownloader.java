@@ -1,5 +1,6 @@
 package cn.org.bedrocktree.carbon.download;
 
+import cn.org.bedrocktree.carbon.download.mirrors.OfficialMinecraftMirror;
 import cn.org.bedrocktree.carbon.exceptions.DownloadFailedException;
 import cn.org.bedrocktree.carbon.exceptions.NoSuchMinecraftVersionException;
 import cn.org.bedrocktree.carbon.exceptions.OsNotSupportsException;
@@ -80,6 +81,11 @@ public class MinecraftDownloader {
             DownloadUtils.download(minecraftMirror.getMinecraftManifestJsonDownloadUrl(),path,"version_manifest.json");
         } catch (IOException e) {
             e.printStackTrace();
+            try {
+                DownloadUtils.download(new OfficialMinecraftMirror().getMinecraftManifestJsonDownloadUrl(),path,"version_manifest.json");
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
         }
         manifest = new File(path+File.separator+"version_manifest.json");
     }
@@ -89,11 +95,17 @@ public class MinecraftDownloader {
             DownloadUtils.download(minecraftMirror.getMinecraftJsonDownloadUrl(new File(path+File.separator+"version_manifest.json"),version),gamePath,version+".json");
         } catch (IOException | DownloadFailedException | NoSuchMinecraftVersionException e) {
             e.printStackTrace();
+            try {
+                DownloadUtils.download(new OfficialMinecraftMirror().getMinecraftJsonDownloadUrl(new File(path+File.separator+"version_manifest.json"),version),gamePath,version+".json");
+            } catch (IOException | DownloadFailedException | NoSuchMinecraftVersionException ioException) {
+                ioException.printStackTrace();
+            }
+
         }
         MinecraftDownloader.this.versionJson = new File(gamePath+File.separator+version+".json");
     }
 
-    private void downloadJar(){
+    private void downloadJar() {
         threadPool.execute(new Thread(() -> {
             if (manifest.exists()){
                 downloadManifest();
@@ -105,6 +117,11 @@ public class MinecraftDownloader {
                 DownloadUtils.download(minecraftMirror.getMinecraftJarDownloadUrl(versionJson),gamePath,version+".jar",minecraftMirror.getMinecraftJarSha1(versionJson));
             } catch (IOException | DownloadFailedException e) {
                 e.printStackTrace();
+                try {
+                    DownloadUtils.download(new OfficialMinecraftMirror().getMinecraftJarDownloadUrl(versionJson),gamePath,version+".jar",minecraftMirror.getMinecraftJarSha1(versionJson));
+                } catch (IOException | DownloadFailedException ioException) {
+                    ioException.printStackTrace();
+                }
             }
         }));
     }
@@ -114,6 +131,11 @@ public class MinecraftDownloader {
             DownloadUtils.download(minecraftMirror.getMinecraftIndexJsonDownloadUrl(versionJson),indexPath+File.separator,JSONObject.parseObject(StreamUtils.readJsonFile(versionJson)).getString("assets")+".json",minecraftMirror.getMinecraftIndexJsonSha1(versionJson));
         } catch (IOException e) {
             e.printStackTrace();
+            try {
+                DownloadUtils.download(new OfficialMinecraftMirror().getMinecraftIndexJsonDownloadUrl(versionJson),indexPath+File.separator,JSONObject.parseObject(StreamUtils.readJsonFile(versionJson)).getString("assets")+".json",minecraftMirror.getMinecraftIndexJsonSha1(versionJson));
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
         }
         try {
             MinecraftDownloader.this.indexJson = new File(indexPath+File.separator+JSONObject.parseObject(StreamUtils.readJsonFile(versionJson)).getString("assets")+".json");
@@ -140,9 +162,14 @@ public class MinecraftDownloader {
                 path.mkdirs();
                 downloadThreadPool.execute(new Thread(() -> {
                     try {
-                        DownloadUtils.download(minecraftMirror.getMinecraftResourceDownloadUrl(hash.substring(0,2),hash),path.getPath(),hash);
+                        DownloadUtils.download(minecraftMirror.getMinecraftResourceDownloadUrl(hash.substring(0,2),hash),path.getPath(),hash,hash);
                     } catch (IOException | DownloadFailedException e) {
                         e.printStackTrace();
+                        try {
+                            DownloadUtils.download(new OfficialMinecraftMirror().getMinecraftResourceDownloadUrl(hash.substring(0,2),hash),path.getPath(),hash,hash);
+                        } catch (IOException ioException) {
+                            ioException.printStackTrace();
+                        }
                     }
                 }));
             }
@@ -156,6 +183,11 @@ public class MinecraftDownloader {
                 DownloadUtils.download(minecraftMirror.getMinecraftLoggerConfigDownloadUrl(versionJson),loggingPath,JSONObject.parseObject(StreamUtils.readJsonFile(versionJson)).getJSONObject("logging").getJSONObject("client").getJSONObject("file").getString("id"),minecraftMirror.getMinecraftLoggerConfigSha1(versionJson));
             } catch (IOException e) {
                 e.printStackTrace();
+                try {
+                    DownloadUtils.download(new OfficialMinecraftMirror().getMinecraftLoggerConfigDownloadUrl(versionJson),loggingPath,JSONObject.parseObject(StreamUtils.readJsonFile(versionJson)).getJSONObject("logging").getJSONObject("client").getJSONObject("file").getString("id"),minecraftMirror.getMinecraftLoggerConfigSha1(versionJson));
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
             }
         }));
     }
@@ -184,6 +216,11 @@ public class MinecraftDownloader {
                         DownloadUtils.download(url,(libPath+path).replaceAll("/",File.separator),"", finalSha.get(finalI));
                     } catch (IOException e) {
                         e.printStackTrace();
+                        try {
+                            DownloadUtils.download(url,(libPath+path).replaceAll("/",File.separator),"", finalSha.get(finalI));
+                        } catch (IOException ioException) {
+                            ioException.printStackTrace();
+                        }
                     }
                 }));
             }
@@ -209,6 +246,11 @@ public class MinecraftDownloader {
                             DownloadUtils.download(url,nativePath+File.separator+url.substring(url.lastIndexOf("/")+1),"",sha1.get(i));
                         } catch (IOException e) {
                             e.printStackTrace();
+                            try {
+                                DownloadUtils.download(url,nativePath+File.separator+url.substring(url.lastIndexOf("/")+1),"",sha1.get(i));
+                            } catch (IOException ioException) {
+                                ioException.printStackTrace();
+                            }
                         }
                         try {
                             DownloadUtils.unzipNativeLibraries(nativePath+File.separator+url.substring(url.lastIndexOf("/")+1),nativePath);

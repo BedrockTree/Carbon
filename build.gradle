@@ -44,19 +44,16 @@ repositories {
 
 dependencies {
     implementation(
-            "com.alibaba:fastjson:1.2.45",
-            "commons-configuration:commons-configuration:1.10",
-            //"org.to2mbn:jmccc:2.4",
-            //"org.to2mbn:jmccc-yggdrasil-authenticator:2.4",
-            //"org.to2mbn:jmccc-mcdownloader:2.4",
-            //"org.tukaani:xz:1.5",
-            "commons-io:commons-io:2.4",
-            "org.apache.logging.log4j:log4j-api:2.8.1",
-            "org.apache.logging.log4j:log4j-core:2.8.1",
+            'com.alibaba:fastjson:1.2.78',
+            'commons-configuration:commons-configuration:1.10',
+            'commons-io:commons-io:20030203.000550',
+            'org.apache.logging.log4j:log4j-api:2.14.1',
+            'org.apache.logging.log4j:log4j-core:2.14.1',
             "com.squareup.okhttp3:okhttp:5.0.0-alpha.2",
             "com.microsoft.alm:oauth2-useragent:0.11.3",
-            "net.lingala.zip4j:zip4j:2.8.0",
-            "commons-codec:commons-codec:1.12"
+            'net.lingala.zip4j:zip4j:2.9.0',
+            'commons-codec:commons-codec:1.12',
+            'commons-cli:commons-cli:20040117.000000'
     )
 }
 
@@ -68,20 +65,15 @@ shadowJar{
         attributes 'SplashScreen-Image': 'icon/icon.png'
     }
     dependencies {
-        include(dependency("com.alibaba:fastjson:1.2.45"))
+        include(dependency("com.alibaba:fastjson:1.2.78"))
         include(dependency("commons-configuration:commons-configuration:1.10"))
-        include(dependency("org.apache.logging.log4j:log4j-api:2.8.1"))
-        include(dependency("org.apache.logging.log4j:log4j-core:2.8.1"))
-        //include(dependency("org.to2mbn:jmccc:2.4"))
-        //include(dependency("org.to2mbn:jmccc-yggdrasil-authenticator:2.4"))
-        //include(dependency("org.to2mbn:jmccc-mcdownloader:2.4"))
-        //include(dependency("org.tukaani:xz:1.5"))
-        include(dependency("commons-io:commons-io:2.4"))
+        include(dependency("commons-io:commons-io:20030203.000550"))
+        include(dependency("org.apache.logging.log4j:log4j-api:2.14.1"))
+        include(dependency("org.apache.logging.log4j:log4j-core:2.14.1"))
         include(dependency("com.squareup.okhttp3:okhttp:5.0.0-alpha.2"))
         include(dependency("com.microsoft.alm:oauth2-useragent:0.11.3"))
-        include(dependency("net.lingala.zip4j:zip4j:2.8.0"))
-        include(dependency("com.squareup.okhttp3:okhttp:5.0.0-alpha.2"))
-        include(dependency("net.lingala.zip4j:zip4j:2.8.0"))
+        include(dependency("net.lingala.zip4j:zip4j:2.9.0"))
         include(dependency("commons-codec:commons-codec:1.12"))
+        include(dependency("commons-cli:commons-cli:20040117.000000"))
     }
 }

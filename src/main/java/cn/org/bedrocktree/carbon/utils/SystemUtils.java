@@ -1,7 +1,5 @@
 package cn.org.bedrocktree.carbon.utils;
 
-import java.io.File;
-
 public class SystemUtils {
 
     public static String getUsername(){
@@ -29,8 +27,6 @@ public class SystemUtils {
             return getUserHomeDirectory()+"\\AppData\\Roaming\\";
         }else if (getSystemName().contains("Linux")){
             return getUserHomeDirectory()+"/.config/";
-        }else if (getSystemName().contains("Mac")){
-            return getUserHomeDirectory()+"/Library/Application Support/";
         }else {
             return null;
         }
@@ -40,8 +36,6 @@ public class SystemUtils {
             return getUserHomeDirectory()+"\\AppData\\Local\\Temp\\";
         }else if (getSystemName().contains("Linux")){
             return "/tmp/";
-        }else if (getSystemName().contains("Mac")){
-            return getUserHomeDirectory()+"/Library/Caches/";
         }else {
             return null;
         }

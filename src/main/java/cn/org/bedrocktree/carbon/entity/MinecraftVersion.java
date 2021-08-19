@@ -83,9 +83,6 @@ public class MinecraftVersion {
             pathSeparator = ":";
         }
         String launchCommandLine = "java";
-        if (SystemUtils.getSystemName().contains("Mac")){
-            launchCommandLine += " -XstartOnFirstThread ";
-        }
         String cp = " -cp ";
         launchCommandLine += " -Djava.library.path=" + nativePath;
         if (versionJsonObject.containsKey("logging")){
@@ -99,7 +96,10 @@ public class MinecraftVersion {
         cp += gameDirectory+version+".jar";
         launchCommandLine += cp;
         launchCommandLine += " "+mainClass;
-        if (versionJsonObject.containsKey("minecraftArguments") & versionJsonObject.getString("minecraftArguments").contains("${auth_player_name} ${auth_session}")){
+        if (versionJsonObject.containsKey("minecraftArguments") && versionJsonObject.getString("minecraftArguments").contains("--userProperties")){
+            launchCommandLine += " --userProperties {\"registrationCountry\":[\"CN\"]}";
+        }
+        if (versionJsonObject.containsKey("minecraftArguments") && versionJsonObject.getString("minecraftArguments").contains("${auth_player_name} ${auth_session}")){
             launchCommandLine += " "+userProfile.getPlayerName();
             launchCommandLine += " "+userProfile.getToken();
             launchCommandLine += " --gameDir " + gameDirectory;
@@ -107,14 +107,13 @@ public class MinecraftVersion {
             return launchCommandLine;
         }else {
             launchCommandLine += " --username " + userProfile.getPlayerName();
-            launchCommandLine += " --version " + version;
+            launchCommandLine += " --version " + version+"/Carbon";
             launchCommandLine += " --gameDir " + gameDirectory;
             launchCommandLine += " --assetsDir " + assetsDirectory;
             launchCommandLine += " --assetIndex " + assetIndexVersion;
             launchCommandLine += " --uuid " + userProfile.getUuid();
             launchCommandLine += " --accessToken " + userProfile.getToken();
             launchCommandLine += " --versionType " + versionType;
-            launchCommandLine += " --userProperties {\"registrationCountry\":[\"CN\"]}";
             return launchCommandLine;
         }
     }

@@ -6,7 +6,7 @@ import javax.swing.plaf.basic.BasicScrollBarUI;
 public class MyJScrollBarUI extends BasicScrollBarUI {
     @Override
     protected void configureScrollBarColors() {
-        this.thumbColor = ColorEnum.GREY_75;
+        this.thumbColor = ColorEnum.GREY_65;
     }
 
     @Override
@@ -26,4 +26,5 @@ public class MyJScrollBarUI extends BasicScrollBarUI {
         jButton.setBorderPainted(false);
         return jButton;
     }
+
 }
