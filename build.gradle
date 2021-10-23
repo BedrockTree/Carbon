@@ -4,21 +4,18 @@ buildscript {
         maven { url = "https://maven.aliyun.com/repository/public/" }
         mavenCentral()
     }
-    dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:6.1.0'
-    }
 }
 
 plugins {
+    id 'java'
+    id 'application'
+    id "org.jetbrains.kotlin.jvm" version "1.4.20"
     id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
 
-apply plugin: 'java'
-apply plugin: 'application'
-apply plugin: 'com.github.johnrengelman.shadow'
-
+group 'cn.org.bedrocktree.carbon'
+version ''
 mainClassName = "cn.org.bedrocktree.carbon.Carbon"
-
 
 jar {
     manifest {
@@ -27,34 +24,11 @@ jar {
     }
 }
 
-application{
-
-}
-
-group 'cn.org.bedrocktree.carbon'
-version ''
-
 repositories {
     mavenLocal()
     maven { url = "https://maven.aliyun.com/repository/public/" }
     maven {url = "https://repo.maven.apache.org/maven2"}
     mavenCentral()
-}
-
-
-dependencies {
-    implementation(
-            'com.alibaba:fastjson:1.2.78',
-            'commons-configuration:commons-configuration:1.10',
-            'commons-io:commons-io:20030203.000550',
-            'org.apache.logging.log4j:log4j-api:2.14.1',
-            'org.apache.logging.log4j:log4j-core:2.14.1',
-            "com.squareup.okhttp3:okhttp:5.0.0-alpha.2",
-            "com.microsoft.alm:oauth2-useragent:0.11.3",
-            'net.lingala.zip4j:zip4j:2.9.0',
-            'commons-codec:commons-codec:1.12',
-            'commons-cli:commons-cli:20040117.000000'
-    )
 }
 
 shadowJar{
@@ -76,4 +50,18 @@ shadowJar{
         include(dependency("commons-codec:commons-codec:1.12"))
         include(dependency("commons-cli:commons-cli:20040117.000000"))
     }
+}
+
+dependencies {
+    implementation 'com.alibaba:fastjson:1.2.78'
+    implementation 'commons-configuration:commons-configuration:1.10'
+    implementation 'commons-io:commons-io:2.11.0'
+    implementation 'org.apache.logging.log4j:log4j-api:2.14.1'
+    implementation 'org.apache.logging.log4j:log4j-core:2.14.1'
+    implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.2'
+    implementation 'com.microsoft.alm:oauth2-useragent:0.11.3'
+    implementation 'net.lingala.zip4j:zip4j:2.9.0'
+    implementation 'commons-codec:commons-codec:1.15'
+    implementation 'commons-cli:commons-cli:1.4'
+    compile 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.31'
 }

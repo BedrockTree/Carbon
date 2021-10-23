@@ -2,20 +2,25 @@ package cn.org.bedrocktree.carbon.init;
 
 import cn.org.bedrocktree.carbon.Carbon;
 import cn.org.bedrocktree.carbon.utils.DownloadUtils;
+import cn.org.bedrocktree.carbon.utils.SystemUtils;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class InitFiles {
 
     public static final File CONFIG_DIRECTORY = new File(Carbon.CONFIGURATION_DIRECTORY_PATH);
 
-    public static final File MINECRAFT_DIRECTORY = new File(CONFIG_DIRECTORY+File.separator+".minecraft");
+    public static final File MINECRAFT_DIRECTORY = new File(Carbon.ROOT_LOCATION+File.separator+".minecraft");
 
     public static final File CONFIG_FILE = new File(CONFIG_DIRECTORY+ File.separator+"config.properties");
 
     public static final File PROFILE_JSON_FILE = new File(CONFIG_DIRECTORY+ File.separator+"profile.json");
-
 
     public static void init() {
         genDirectory();
